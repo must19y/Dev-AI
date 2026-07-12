@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  ollama:
+    container_name: ollama
+
+    build:
+      context: ./ollama
+
+    ports:
+      - "11434:11434"
+
+    volumes:
+      - ollama_data:/root/.ollama
+
+    tty: true
+
+  backend:
+   container_name: backend
+
+   image: node:20
+
+   working_dir: /app
+
+   volumes:
+    - ./backend:/app
+
+   ports:
+    - "3000:3000"
+
+   tty: true
+
+   command: sh -c "while sleep 1000; do :; done"
+
+  python-backend:
+   container_name: python-backend
+
+   image: python:3.13
+
+   working_dir: /app
+
+   volumes:
+    - ./getting_started_python:/app
+
+   ports:
+    - "8001:8000"
+
+   tty: true
+
+   command: tail -f /dev/null
+
+volumes:
+  ollama_data:
