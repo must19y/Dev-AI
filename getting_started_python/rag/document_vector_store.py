@@ -135,7 +135,9 @@ class MultiDocumentVectorStore:
                 ),##hereusedidxthengetcozidxindictwillnotgiveanything
                 content=document_chunk
             ))
-
+##veryimportant to note is that because [] is used for storing chunks
+##so we don't do documednt_chunk[0] but if you see we must use [idx]
+##for metadata or coz we used dict to add it
         return documents
 
 
@@ -159,5 +161,7 @@ readme_vector_store= MultiDocumentVectorStore(readme_documents)
 
 #print(results)
 
-
-
+## and here one more thing to note is that readme_documents is a list
+##soif we providethatlistwithashapelikeList[Document] which the
+##class expects so we can also use return or like shape making{
+## } like this

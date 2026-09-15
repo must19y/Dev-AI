@@ -127,5 +127,10 @@ class User:
 
         return result            
 
-            
+##metadata can be looped and checked in metadata[0] ofcurse results
+## but if you see distanc[0][idx] means first querys's intthat also
+##acc to idx why did we not do for others like this because we for
+##them are first doing results.get("metadata")[0] then after idx
+##or something but here for distance we did not do that so we have
+##tofirstdolikethat then inthat firstone
 
