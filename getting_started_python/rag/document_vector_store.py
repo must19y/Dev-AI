@@ -12,6 +12,7 @@ from langchain_text_splitters import (
     Language,
 )
 
+from pydantic import BaseModel
 
 class DocumentVectorStore:
 
@@ -75,3 +76,88 @@ for idx, document in enumerate(documents, start=1):
 
     print(f"\n--- Result {idx} ---\n")
     print(document)
+
+
+class Document:
+    source_url: str,
+    content: str 
+
+
+class MultiDocumentVectorStore:
+    def __init__(self,document:List[Document]):
+        ollama_embedding_function = OllamaEmbeddingFunction(
+            url="http://ollama:11434",
+            model_name="mxbai-embed-large",
+        )
+
+        client = Client()
+
+        self.collection = client.create_collection(
+            name="examples_readme",
+            embedding_function=ollama_embedding_function
+        )
+
+        chunks = splitter.split_text(documents)
+        
+        for doc_idx, document in enumerate(documents):
+            splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.MarkDown,
+            chunk_size = 1500,
+            chunk_overlap=0
+        )
+            chunks= splitter.split_text(document.content)
+
+            for chunk_idx,chunk in enumerate(chunks):
+               collection.add(
+                documents=chunk,
+                ids= [f"{doc_idx + 1} {chunk_idx + 1}"]
+                metadata={
+                    "source_url": document.source_url,
+                }
+            )
+
+    def query(self,question,n_results):
+        results= self.collection.query(
+            question=[question],
+            n_results= n_results
+        )
+
+        ##return results or results.get something
+
+        document_chunk_results =results.get('documents')[0]
+        document_chunk_metadatas=results.get('metadatas')[0]
+
+        documents:List[Document] = []
+        for idx,document_chunk in document_chunk_results:
+            return documents.append(Document(
+                source_url=document_chunk_metadatas[idx].get(
+                    'source_url'
+                ),##hereusedidxthengetcozidxindictwillnotgiveanything
+                content=document_chunk
+            ))
+
+        return documents
+
+
+readme_filenames = [
+'README.md',
+'part1/getting_started_python/README.md',
+]
+
+readme_documents= [] 
+
+for readme_filename in readme_filenames:
+    readme_documents.append(
+        download_remote_document(filename=readme_filename)
+    )
+
+readme_vector_store= MultiDocumentVectorStore(readme_documents)
+
+##question="" and then
+
+#results = readme_vector_store(question=question)
+
+#print(results)
+
+
+
